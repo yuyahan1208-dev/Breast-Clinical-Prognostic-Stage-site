@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>乳癌臨床預後分期速算器 | AJCC 8th / NCCN</title>
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load Inter & Noto Sans TC fonts for optimal medical readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            clinical: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen selection:bg-rose-100 selection:text-rose-900">
+
+  <!-- Top Navigation / Header Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+          <!-- Clinical Ribbon / Cross SVG icon -->
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-3-3v6m-7.5 3.75h15A2.25 2.25 0 0021.75 16.5v-9a2.25 2.25 0 00-2.25-2.25h-15A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 truncate leading-tight">
+            乳癌臨床預後分期速算器
+          </h1>
+          <p class="text-xs text-slate-500 truncate">
+            NCCN Guidelines · AJCC 8th Edition Clinical Prognostic Stage
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Reset Button -->
+      <button
+        id="resetBtn"
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 active:scale-95 transition-all shrink-0 cursor-pointer"
+        title="重設為預設值 (T1c N0 M0, G2, HR+/HER2-)"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span>重設</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+      <!-- LEFT COLUMN: Ultra-Fast One-Click Input Panel -->
+      <section class="lg:col-span-7 space-y-4" aria-label="分期參數輸入區">
+
+        <!-- Card 1: TNM Anatomical Inputs -->
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+              解剖分期參數 (cTNM)
+            </h2>
+            <span class="text-xs text-slate-400 font-medium">單鍵點選或輸入公分數</span>
+          </div>
+
+          <!-- T Stage with Inline Tumor Size Quick Input -->
+          <div class="space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label for="tumorSizeInput" class="text-xs sm:text-sm font-semibold text-slate-800">
+                T <span class="font-normal text-slate-500">原發腫瘤大小與範圍 (Primary Tumor)</span>
+              </label>
+
+              <!-- Compact Tumor Size Quick Input Box (cm) -->
+              <div class="flex items-center gap-1.5 bg-rose-50/70 border border-rose-200/80 rounded-xl px-2.5 py-1 focus-within:ring-2 focus-within:ring-rose-500/30 focus-within:border-rose-400 transition-all">
+                <span class="text-[11px] font-semibold text-rose-800 whitespace-nowrap">腫瘤大小</span>
+                <input
+                  id="tumorSizeInput"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="30"
+                  inputmode="decimal"
+                  placeholder="如 1.8"
+                  class="w-16 sm:w-20 bg-white border border-rose-200 rounded-lg px-2 py-1 text-xs sm:text-sm font-bold text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:border-rose-500 text-right"
+                  aria-label="腫瘤大小（公分）"
+                />
+                <span class="text-xs font-semibold text-slate-600">cm</span>
+                <button
+                  id="clearSizeBtn"
+                  type="button"
+                  class="hidden text-slate-400 hover:text-rose-600 p-0.5 rounded transition-colors cursor-pointer"
+                  title="清除公分數"
+                  aria-label="清除腫瘤公分數"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- 9 Fine-Grained T Stage Buttons (3x3 Responsive Grid) -->
+            <div id="t-group" class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="T 分期">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- N Stage -->
+          <div class="space-y-2">
+            <div class="flex items-baseline justify-between">
+              <label class="text-xs sm:text-sm font-semibold text-slate-800">
+                N <span class="font-normal text-slate-500">區域淋巴結 (Regional Lymph Nodes)</span>
+              </label>
+            </div>
+            <div id="n-group" class="grid grid-cols-2 sm:grid-cols-4 gap-2" role="radiogroup" aria-label="N 分期">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- M Stage -->
+          <div class="space-y-2">
+            <div class="flex items-baseline justify-between">
+              <label class="text-xs sm:text-sm font-semibold text-slate-800">
+                M <span class="font-normal text-slate-500">遠端轉移 (Distant Metastasis)</span>
+              </label>
+            </div>
+            <div id="m-group" class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="M 分期">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Grade & Biomarkers -->
+        <div id="bio-card" class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-4 transition-opacity duration-200">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+              組織分級與生物標記 (Grade &amp; Biomarkers)
+            </h2>
+            <!-- Contextual badge shown when Stage 0 or Stage IV -->
+            <span id="bio-not-required-badge" class="hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">
+              <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              此分期不影響結果 (Not required for Stage 0 / IV)
+            </span>
+          </div>
+
+          <!-- Grade (SBR) -->
+          <div class="space-y-2">
+            <label class="text-xs sm:text-sm font-semibold text-slate-700 block">
+              Grade <span class="font-normal text-slate-500">組織分級 (Nottingham / SBR)</span>
+            </label>
+            <div id="grade-group" class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Grade 組織分級">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Quick Subtype Presets -->
+          <div class="space-y-2 pt-1">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                常見亞型快捷鍵 (Quick Subtype Presets)
+              </label>
+            </div>
+            <div id="preset-group" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- ER / PR / HER2 Side-by-Side Toggle Pairs -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <!-- ER -->
+            <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
+              <div class="text-xs font-semibold text-slate-600 mb-2 text-center">ER (雌激素受體)</div>
+              <div id="er-group" class="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="ER 狀態">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+            <!-- PR -->
+            <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
+              <div class="text-xs font-semibold text-slate-600 mb-2 text-center">PR (黃體素受體)</div>
+              <div id="pr-group" class="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="PR 狀態">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+            <!-- HER2 -->
+            <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
+              <div class="text-xs font-semibold text-slate-600 mb-2 text-center">HER2 (第二型受體)</div>
+              <div id="her2-group" class="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="HER2 狀態">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: Prominent Result Card & EMR Productivity -->
+      <aside class="lg:col-span-5 lg:sticky lg:top-20 space-y-4" aria-label="分期計算結果">
+        <div id="result-card" class="bg-white rounded-2xl border border-slate-200/90 shadow-md overflow-hidden transition-colors duration-200">
+
+          <!-- Dynamic Color-Coded Top Stage Banner -->
+          <div id="stage-banner" class="p-5 sm:p-6 bg-gradient-to-br from-teal-700 to-teal-800 text-white transition-all duration-300">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-white/80">
+                Clinical Prognostic Stage
+              </span>
+              <span id="subtype-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm">
+                HR+ / HER2-
+              </span>
+            </div>
+
+            <!-- Valid Stage Output -->
+            <div id="valid-stage-view" class="flex items-baseline justify-between gap-3">
+              <div>
+                <div class="text-xs text-white/80 mb-0.5">臨床預後分期</div>
+                <div id="prog-stage-text" class="text-4xl sm:text-5xl font-extrabold tracking-tight">
+                  Stage IA
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-white/75">輸入組合</div>
+                <div id="tnm-mini-label" class="text-base sm:text-lg font-bold tracking-wide">
+                  cT1 N0 M0
+                </div>
+              </div>
+            </div>
+
+            <!-- Clinical Warning / Edge Case Output (Hidden by default) -->
+            <div id="warning-stage-view" class="hidden py-1">
+              <div class="flex items-start gap-2.5">
+                <svg class="w-6 h-6 text-amber-200 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div>
+                  <div id="warning-title" class="text-lg font-bold text-white">無法計算預後分期</div>
+                  <p id="warning-message" class="text-sm text-white/90 mt-1 leading-relaxed"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comparison & Details Body -->
+          <div class="p-4 sm:p-5 space-y-4">
+
+            <!-- Anatomic Comparison Row -->
+            <div id="comparison-section" class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div>
+                <div class="text-xs text-slate-500">傳統解剖分期 (Anatomic Stage)</div>
+                <div id="anat-stage-text" class="text-lg font-bold text-slate-800 mt-0.5">Stage IA</div>
+              </div>
+              <div id="shift-badge" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700">
+                ＝ 與解剖分期一致
+              </div>
+            </div>
+
+            <!-- Parameter Summary Chips -->
+            <div id="params-summary" class="flex flex-wrap gap-1.5 text-xs">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- EMR Copy Box -->
+            <div id="emr-section" class="space-y-2.5 pt-1 border-t border-slate-100">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold text-slate-700">病歷摘要 (EMR Summary)</span>
+                <label id="size-emr-option" class="hidden inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-600 cursor-pointer select-none">
+                  <input id="includeSizeCheckbox" type="checkbox" checked class="rounded border-slate-300 text-rose-600 focus:ring-rose-500 cursor-pointer" />
+                  <span>摘要含公分數</span>
+                </label>
+              </div>
+              <div
+                id="emr-text-box"
+                class="p-3 rounded-xl bg-slate-100/90 border border-slate-200 text-xs sm:text-sm font-mono text-slate-800 break-words leading-relaxed select-all"
+              >
+                cT1cN0M0, Grade 2, ER(+), PR(+), HER2(-) | Clinical Prognostic Stage: IA (Anatomic: IA) [AJCC 8th]
+              </div>
+              <button
+                id="copyEmrBtn"
+                type="button"
+                class="w-full py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <svg id="copy-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <svg id="check-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span id="copy-btn-label">一鍵複製病歷摘要</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Collapsible Quick Reference Drawer (TNM & Grade 定義速查) -->
+    <section class="mt-6 bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden" aria-label="TNM 與 Grade 定義速查">
+      <button
+        id="refToggleBtn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="refContent"
+        class="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors cursor-pointer"
+      >
+        <div class="flex items-center gap-2.5">
+          <svg class="w-5 h-5 text-rose-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <div>
+            <span class="text-sm font-bold text-slate-900">TNM 細項與 SBR Grade 定義速查 (AJCC 8th Edition)</span>
+            <span class="hidden sm:inline text-xs text-slate-500 ml-2">展開檢視 Tis–T4d 腫瘤公分數、cN0–cN3c、M0–M1 與 SBR Grade</span>
+          </div>
+        </div>
+        <svg id="refChevron" class="w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <div id="refContent" class="hidden border-t border-slate-100 p-5 bg-slate-50/50">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+
+          <!-- T Definitions -->
+          <div class="bg-white rounded-xl p-4 border border-slate-200/80 space-y-2">
+            <h3 class="font-bold text-rose-700 border-b border-slate-100 pb-1.5">T — 原發腫瘤大小與範圍 (Primary Tumor)</h3>
+            <ul class="space-y-1.5 text-slate-600 leading-relaxed">
+              <li><strong class="text-slate-800">Tis:</strong> 原位癌 (DCIS 或 Paget disease of nipple 無侵襲性腫瘤；AJCC 8th 已將 LCIS 移出 Tis)。</li>
+              <li><strong class="text-slate-800">T0:</strong> 無原發乳房腫瘤證據。</li>
+              <li><strong class="text-slate-800">T1mi:</strong> 微侵犯，侵襲性腫瘤最大徑 ≤ 0.1 cm (≤ 1 mm)。</li>
+              <li><strong class="text-slate-800">T1a / T1b / T1c:</strong> T1a (&gt; 0.1–0.5 cm)、T1b (&gt; 0.5–1.0 cm)、T1c (&gt; 1.0–2.0 cm)；於預後分期表皆歸為 T1* 群組。</li>
+              <li><strong class="text-slate-800">T2:</strong> 侵襲性腫瘤最大徑 &gt; 2.0 cm 且 ≤ 5.0 cm。</li>
+              <li><strong class="text-slate-800">T3:</strong> 侵襲性腫瘤最大徑 &gt; 5.0 cm。</li>
+              <li><strong class="text-slate-800">T4:</strong> 不論大小，直接侵犯胸壁 (T4a)、皮膚水腫/潰瘍/衛星結節 (T4b)、同時侵犯胸壁與皮膚 (T4c) 或發炎性乳癌 (T4d)。</li>
+            </ul>
+          </div>
+
+          <!-- N Definitions -->
+          <div class="bg-white rounded-xl p-4 border border-slate-200/80 space-y-2">
+            <h3 class="font-bold text-rose-700 border-b border-slate-100 pb-1.5">cN — 臨床區域淋巴結 (Clinical Regional Nodes)</h3>
+            <ul class="space-y-1.5 text-slate-600 leading-relaxed">
+              <li><strong class="text-slate-800">cN0:</strong> 無區域淋巴結轉移證據（理學檢查或影像）。</li>
+              <li><strong class="text-slate-800">cN1:</strong> 同側可移動之 Level I/II 腋下淋巴結轉移。</li>
+              <li><strong class="text-slate-800">cN2:</strong> 同側固定或沾黏之 Level I/II 腋下淋巴結 (cN2a)，或臨床發現內乳淋巴結轉移但無腋下轉移 (cN2b)。</li>
+              <li><strong class="text-slate-800">cN3:</strong> 鎖骨下 Level III (cN3a)、同時有內乳與腋下轉移 (cN3b) 或鎖骨上淋巴結轉移 (cN3c)。</li>
+            </ul>
+          </div>
+
+          <!-- M Definitions -->
+          <div class="bg-white rounded-xl p-4 border border-slate-200/80 space-y-2">
+            <h3 class="font-bold text-rose-700 border-b border-slate-100 pb-1.5">M — 遠端轉移 (Distant Metastasis)</h3>
+            <ul class="space-y-1.5 text-slate-600 leading-relaxed">
+              <li><strong class="text-slate-800">cM0:</strong> 無臨床或影像學之遠端轉移證據。</li>
+              <li><strong class="text-slate-800">cM0(i+):</strong> 無臨床/影像遠端轉移，但於血液、骨髓或非區域淋巴結偵測到 ≤ 0.2 mm 之分子或顯微腫瘤細胞（分期等同 M0）。</li>
+              <li><strong class="text-slate-800">cM1 / pM1:</strong> 經臨床、影像或組織學證實遠端轉移 (&gt; 0.2 mm)，不論 T/N/Grade/Biomarker 皆為 Stage IV。</li>
+            </ul>
+          </div>
+
+          <!-- Grade Definitions -->
+          <div class="bg-white rounded-xl p-4 border border-slate-200/80 space-y-2">
+            <h3 class="font-bold text-rose-700 border-b border-slate-100 pb-1.5">Grade — Nottingham (Modified SBR) 組織分級</h3>
+          <!-- Grade Definitions -->
+          <div class="bg-white rounded-xl p-4 border border-slate-200/80 space-y-2">
+            <h3 class="font-bold text-teal-800 border-b border-slate-100 pb-1.5">Grade — Nottingham (Modified SBR) 組織分級</h3>
+            <p class="text-xs text-slate-500">依據腺管形成 (1–3)、細胞核多形性 (1–3) 與有絲分裂數 (1–3) 總分：</p>
+            <ul class="space-y-1.5 text-slate-600 leading-relaxed">
+              <li><strong class="text-slate-800">Grade 1 (3–5 分):</strong> 高分化 (Well differentiated)，預後最佳。</li>
+              <li><strong class="text-slate-800">Grade 2 (6–7 分):</strong> 中分化 (Moderately differentiated)。</li>
+              <li><strong class="text-slate-800">Grade 3 (8–9 分):</strong> 低分化 (Poorly differentiated)，增生較快。</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Clinical Disclaimer Footer -->
+    <footer class="mt-6 mb-4 text-center text-xs text-slate-400 leading-relaxed px-2">
+      <p>
+        本工具係依據 <strong class="text-slate-500 font-medium">AJCC 8th Edition Cancer Staging Manual</strong> 與 <strong class="text-slate-500 font-medium">NCCN Breast Cancer Guidelines</strong> 之「臨床預後分期 (Clinical Prognostic Stage)」規則設計，僅供醫療專業人員臨床參考使用。
+      </p>
+      <p class="mt-1">
+        ※ 注意：本計算器不適用於手術後病理預後分期 (Pathological Prognostic Stage, pTNM) 或前導性治療後分期 (Post-neoadjuvant, ypTNM)。
+      </p>
+    </footer>
+  </main>
+
+  <!-- Floating Toast Notification (Non-blocking feedback, replaces alert()) -->
+  <div
+    id="toast"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-lg flex items-center gap-2 opacity-0 pointer-events-none translate-y-2 transition-all duration-200"
+  >
+    <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="toast-msg">已複製病歷摘要至剪貼簿</span>
+  </div>
+
+  <script>
+    /**
+     * Breast Cancer Clinical Prognostic Stage Calculator
+     * Reference: AJCC 8th Edition / NCCN Breast Cancer Guidelines
+     */
+
+    // =========================================================================
+    // 1. EXACT AJCC 8th EDITION CLINICAL PROGNOSTIC STAGE LOOKUP TABLE
+    //    Key format: `${HER2}${ER}${PR}` (where '+' = Positive, '-' = Negative)
+    // =========================================================================
+    const PROGNOSTIC_TABLE = {
+      1: { // Group 1: (T1 N0), (T0 N1mi), (T1 N1mi)
+        1: { '+++': 'IA', '++-': 'IA', '+-+': 'IA', '+--': 'IA', '-++': 'IA', '-+-': 'IA', '--+': 'IA', '---': 'IB' },
+        2: { '+++': 'IA', '++-': 'IA', '+-+': 'IA', '+--': 'IA', '-++': 'IA', '-+-': 'IA', '--+': 'IA', '---': 'IB' },
+        3: { '+++': 'IA', '++-': 'IA', '+-+': 'IA', '+--': 'IA', '-++': 'IA', '-+-': 'IB', '--+': 'IB', '---': 'IB' }
+      },
+      2: { // Group 2: (T0 N1), (T1 N1), (T2 N0)
+        1: { '+++': 'IB', '++-': 'IIA', '+-+': 'IIA', '+--': 'IIA', '-++': 'IB', '-+-': 'IIA', '--+': 'IIA', '---': 'IIA' },
+        2: { '+++': 'IB', '++-': 'IIA', '+-+': 'IIA', '+--': 'IIA', '-++': 'IB', '-+-': 'IIA', '--+': 'IIA', '---': 'IIB' },
+        3: { '+++': 'IB', '++-': 'IIA', '+-+': 'IIA', '+--': 'IIA', '-++': 'IIA', '-+-': 'IIB', '--+': 'IIB', '---': 'IIB' }
+      },
+      3: { // Group 3: (T2 N1mi), (T2 N1), (T3 N0)
+        1: { '+++': 'IB', '++-': 'IIA', '+-+': 'IIA', '+--': 'IIB', '-++': 'IIA', '-+-': 'IIB', '--+': 'IIB', '---': 'IIB' },
+        2: { '+++': 'IB', '++-': 'IIA', '+-+': 'IIA', '+--': 'IIB', '-++': 'IIA', '-+-': 'IIB', '--+': 'IIB', '---': 'IIIB' },
+        3: { '+++': 'IB', '++-': 'IIB', '+-+': 'IIB', '+--': 'IIB', '-++': 'IIB', '-+-': 'IIIA', '--+': 'IIIA', '---': 'IIIB' }
+      },
+      4: { // Group 4: (T0 N2), (T1 N2), (T2 N2), (T3 N1mi), (T3 N1), (T3 N2)
+        1: { '+++': 'IIA', '++-': 'IIIA', '+-+': 'IIIA', '+--': 'IIIA', '-++': 'IIA', '-+-': 'IIIA', '--+': 'IIIA', '---': 'IIIB' },
+        2: { '+++': 'IIA', '++-': 'IIIA', '+-+': 'IIIA', '+--': 'IIIA', '-++': 'IIA', '-+-': 'IIIA', '--+': 'IIIA', '---': 'IIIB' },
+        3: { '+++': 'IIB', '++-': 'IIIA', '+-+': 'IIIA', '+--': 'IIIA', '-++': 'IIIA', '-+-': 'IIIB', '--+': 'IIIB', '---': 'IIIC' }
+      },
+      5: { // Group 5: (T4 N0), (T4 N1mi), (T4 N1), (T4 N2), (Any T N3)
+        1: { '+++': 'IIIA', '++-': 'IIIB', '+-+': 'IIIB', '+--': 'IIIB', '-++': 'IIIB', '-+-': 'IIIB', '--+': 'IIIB', '---': 'IIIC' },
+        2: { '+++': 'IIIA', '++-': 'IIIB', '+-+': 'IIIB', '+--': 'IIIB', '-++': 'IIIB', '-+-': 'IIIB', '--+': 'IIIB', '---': 'IIIC' },
+        3: { '+++': 'IIIB', '++-': 'IIIB', '+-+': 'IIIB', '+--': 'IIIB', '-++': 'IIIB', '-+-': 'IIIC', '--+': 'IIIC', '---': 'IIIC' }
+      }
+    };
+
+    // Ordered stage hierarchy for comparing Prognostic vs Anatomic stage
+    const STAGE_ORDER = ['0', 'IA', 'IB', 'IIA', 'IIB', 'IIIA', 'IIIB', 'IIIC', 'IV'];
+
+    // =========================================================================
+    // 2. INPUT DEFINITIONS & DEFAULT STATE
+    // =========================================================================
+    const T_OPTIONS = [
+      { value: 'Tis',  label: 'Tis',  sub: '原位癌 (DCIS/Paget)' },
+      { value: 'T0',   label: 'T0',   sub: '無原發腫瘤證據' },
+      { value: 'T1mi', label: 'T1mi', sub: '≤ 0.1 cm' },
+      { value: 'T1a',  label: 'T1a',  sub: '> 0.1–0.5 cm' },
+      { value: 'T1b',  label: 'T1b',  sub: '> 0.5–1.0 cm' },
+      { value: 'T1c',  label: 'T1c',  sub: '> 1.0–2.0 cm' },
+      { value: 'T2',   label: 'T2',   sub: '> 2.0–5.0 cm' },
+      { value: 'T3',   label: 'T3',   sub: '> 5.0 cm' },
+      { value: 'T4',   label: 'T4',   sub: '胸壁/皮膚/發炎性' }
+    ];
+
+    const N_OPTIONS = [
+      { value: 'N0', label: 'N0', sub: '無區域淋巴結轉移' },
+      { value: 'N1', label: 'N1', sub: '同側可動腋下 I–II' },
+      { value: 'N2', label: 'N2', sub: '同側固定腋下/內乳' },
+      { value: 'N3', label: 'N3', sub: '鎖骨下/上或腋下併內乳' }
+    ];
+
+    const M_OPTIONS = [
+      { value: 'M0', label: 'M0', sub: '無遠端轉移 (含M0(i+))' },
+      { value: 'M1', label: 'M1', sub: '有遠端轉移' }
+    ];
+
+    const GRADE_OPTIONS = [
+      { value: '1', label: 'Grade 1', sub: '高分化 (3–5分)' },
+      { value: '2', label: 'Grade 2', sub: '中分化 (6–7分)' },
+      { value: '3', label: 'Grade 3', sub: '低分化 (8–9分)' }
+    ];
+
+    const SUBTYPE_PRESETS = [
+      { id: 'HR+/HER2-', label: 'HR+/HER2-', er: '+', pr: '+', her2: '-' },
+      { id: 'HR+/HER2+', label: 'HR+/HER2+', er: '+', pr: '+', her2: '+' },
+      { id: 'HR-/HER2+', label: 'HR-/HER2+', er: '-', pr: '-', her2: '+' },
+      { id: 'TNBC',      label: 'TNBC (三陰性)', er: '-', pr: '-', her2: '-' }
+    ];
+
+    const DEFAULT_STATE = {
+      T: 'T1c',
+      tumorSize: '',
+      includeSizeInEmr: true,
+      N: 'N0',
+      M: 'M0',
+      grade: '2',
+      er: '+',
+      pr: '+',
+      her2: '-'
+    };
+
+    let state = { ...DEFAULT_STATE };
+    let currentEmrString = '';
+    let toastTimer = null;
+
+    // =========================================================================
+    // 3. CORE STAGING ALGORITHMS (100% EXACT AJCC 8th EDITION)
+    // =========================================================================
+
+    /**
+     * Normalizes fine-grained T1 subcategories (T1mi/T1a/T1b/T1c) to 'T1' for staging lookup.
+     */
+    function normalizeT(T) {
+      if (T === 'T1mi' || T === 'T1a' || T === 'T1b' || T === 'T1c') return 'T1';
+      return T;
+    }
+
+    /**
+     * Maps numeric tumor size in cm to the corresponding AJCC 8th T category.
+     */
+    function mapSizeToT(sizeCm) {
+      if (isNaN(sizeCm) || sizeCm < 0) return null;
+      if (sizeCm === 0) return 'T0';
+      if (sizeCm <= 0.1) return 'T1mi';
+      if (sizeCm <= 0.5) return 'T1a';
+      if (sizeCm <= 1.0) return 'T1b';
+      if (sizeCm <= 2.0) return 'T1c';
+      if (sizeCm <= 5.0) return 'T2';
+      return 'T3';
+    }
+
+    /**
+     * Maps valid invasive (T, N) with M0 into AJCC 8th TNM Group (1 to 5).
+     */
+    function getTnmGroup(T, N) {
+      const baseT = normalizeT(T);
+      if (N === 'N3') return 5;
+      if (baseT === 'T4') return 5; // T4 with N0, N1, N2 (N3 already handled)
+
+      if (baseT === 'T1' && N === 'N0') {
+        return 1;
+      }
+      if ((baseT === 'T0' && N === 'N1') || (baseT === 'T1' && N === 'N1') || (baseT === 'T2' && N === 'N0')) {
+        return 2;
+      }
+      if ((baseT === 'T2' && N === 'N1') || (baseT === 'T3' && N === 'N0')) {
+        return 3;
+      }
+      if (
+        (baseT === 'T0' && N === 'N2') || (baseT === 'T1' && N === 'N2') || (baseT === 'T2' && N === 'N2') ||
+        (baseT === 'T3' && N === 'N1') || (baseT === 'T3' && N === 'N2')
+      ) {
+        return 4;
+      }
+      return null;
+    }
+
+    /**
+     * Computes AJCC 8th Edition Anatomic Stage.
+     */
+    function getAnatomicStage(T, N, M) {
+      const baseT = normalizeT(T);
+      if (M === 'M1') return 'IV';
+      if (baseT === 'Tis' && N === 'N0') return '0';
+      if (N === 'N3') return 'IIIC';
+      if (baseT === 'T4') return 'IIIB'; // T4 with N0, N1, N2
+
+      if (baseT === 'T1' && N === 'N0') return 'IA';
+      if (((baseT === 'T0' || baseT === 'T1') && N === 'N1') || (baseT === 'T2' && N === 'N0')) return 'IIA';
+      if ((baseT === 'T2' && N === 'N1') || (baseT === 'T3' && N === 'N0')) return 'IIB';
+      if (
+        ((baseT === 'T0' || baseT === 'T1' || baseT === 'T2') && N === 'N2') ||
+        (baseT === 'T3' && (N === 'N1' || N === 'N2'))
+      ) {
+        return 'IIIA';
+      }
+      return null;
+    }
+
+    /**
+     * Determines Molecular Subtype from ER, PR, HER2 status.
+     */
+    function getMolecularSubtype(er, pr, her2) {
+      const hrPositive = (er === '+' || pr === '+');
+      if (hrPositive && her2 === '-') return { id: 'HR+/HER2-', label: 'HR+ / HER2-' };
+      if (hrPositive && her2 === '+') return { id: 'HR+/HER2+', label: 'HR+ / HER2+' };
+      if (!hrPositive && her2 === '+') return { id: 'HR-/HER2+', label: 'HR- / HER2+' };
+      return { id: 'TNBC', label: 'TNBC (三陰性)' };
+    }
+
+    /**
+     * Evaluates full staging result including edge-case warnings and stage shift.
+     */
+    function calculateStaging() {
+      const { T, N, M, grade, er, pr, her2 } = state;
+      const subtype = getMolecularSubtype(er, pr, her2);
+
+      // Edge Case 1: Distant Metastasis (M1) -> Stage IV
+      if (M === 'M1') {
+        return {
+          valid: true,
+          bioNotRequired: true,
+          progStage: 'IV',
+          anatStage: 'IV',
+          shift: 'unchanged',
+          subtype
+        };
+      }
+
+      // Edge Case 2: Tis + N0 + M0 -> Stage 0
+      if (T === 'Tis' && N === 'N0') {
+        return {
+          valid: true,
+          bioNotRequired: true,
+          progStage: '0',
+          anatStage: '0',
+          shift: 'unchanged',
+          subtype
+        };
+      }
+
+      // Edge Case 3: Tis + N != N0 + M0 -> Clinical Warning
+      if (T === 'Tis' && N !== 'N0') {
+        return {
+          valid: false,
+          bioNotRequired: false,
+          warningTitle: '臨床組合異常 (Tis 合併淋巴結轉移)',
+          warningMessage: 'Tis (原位癌) 臨床上不適用一般臨床預後分期；請確認是否為隱匿性乳癌 (改選 T0) 或存在微侵犯病灶 (改選 T1mi)。',
+          subtype
+        };
+      }
+
+      // Edge Case 4: T0 + N0 + M0 -> Clinical Note
+      if (T === 'T0' && N === 'N0') {
+        return {
+          valid: false,
+          bioNotRequired: false,
+          warningTitle: '無侵襲性乳癌分期依據 (T0 N0 M0)',
+          warningMessage: 'T0 N0 M0 無原發腫瘤及淋巴結轉移證據，不適用一般臨床預後分期；請確認是否為原位癌 (Tis) 或微侵犯 (T1mi)。',
+          subtype
+        };
+      }
+
+      // Edge Case 4: T0 + N0 + M0 -> Clinical Note
+      if (T === 'T0' && N === 'N0') {
+        return {
+          valid: false,
+          bioNotRequired: false,
+          warningTitle: '無侵襲性乳癌分期依據 (T0 N0 M0)',
+          warningMessage: 'T0 N0 M0 無原發腫瘤及轉移證據，無法套用侵襲性乳癌臨床預後分期。',
+          subtype
+        };
+      }
+
+      // Standard Invasive M0 Calculation
+      const group = getTnmGroup(T, N);
+      const bioKey = `${her2}${er}${pr}`; // Order: HER2, ER, PR
+      const progStage = PROGNOSTIC_TABLE[group][grade][bioKey];
+      const anatStage = getAnatomicStage(T, N, M);
+
+      const progIdx = STAGE_ORDER.indexOf(progStage);
+      const anatIdx = STAGE_ORDER.indexOf(anatStage);
+      let shift = 'unchanged';
+      if (progIdx < anatIdx) shift = 'downstaged';
+      else if (progIdx > anatIdx) shift = 'upstaged';
+
+      return {
+        valid: true,
+        bioNotRequired: false,
+        progStage,
+        anatStage,
+        shift,
+        subtype
+      };
+    }
+
+    // =========================================================================
+    // 4. UI RENDERING HELPERS
+    // =========================================================================
+
+    /**
+     * Returns Tailwind gradient classes for the result banner based on stage severity.
+     */
+    function getStageBannerClasses(stage, isValid) {
+      if (!isValid) return 'from-amber-600 to-amber-700';
+      switch (stage) {
+        case '0':    return 'from-sky-600 to-sky-700';
+        case 'IA':
+        case 'IB':   return 'from-teal-700 to-emerald-800';
+        case 'IIA':
+        case 'IIB':  return 'from-blue-700 to-indigo-800';
+        case 'IIIA':
+        case 'IIIB':
+        case 'IIIC': return 'from-amber-600 to-orange-700';
+        case 'IV':   return 'from-rose-700 to-red-800';
+        default:     return 'from-slate-700 to-slate-800';
+      }
+    }
+
+    /**
+     * Renders a pill button group into a container.
+     */
+    function renderPillGroup(containerId, options, activeValue, onSelect, sizeClass = 'py-2.5 px-2') {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      options.forEach(opt => {
+        const isActive = opt.value === activeValue;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('role', 'radio');
+        btn.setAttribute('aria-checked', String(isActive));
+
+        btn.className = [
+          'rounded-xl font-semibold text-center transition-all duration-150 cursor-pointer select-none flex flex-col items-center justify-center leading-tight active:scale-95',
+          sizeClass,
+          isActive
+            ? 'bg-rose-600 text-white shadow-sm ring-2 ring-rose-600/25 border border-rose-600'
+            : 'bg-slate-50 text-slate-800 border border-slate-200 hover:bg-rose-50/60 hover:border-rose-200'
+        ].join(' ');
+
+        const mainSpan = document.createElement('span');
+        mainSpan.className = 'text-xs sm:text-sm font-bold';
+        mainSpan.textContent = opt.label;
+        btn.appendChild(mainSpan);
+
+        if (opt.sub) {
+          const subSpan = document.createElement('span');
+          subSpan.className = isActive
+            ? 'text-[10px] sm:text-[11px] font-medium text-rose-100 mt-0.5 leading-snug'
+            : 'text-[10px] sm:text-[11px] font-normal text-slate-500 mt-0.5 leading-snug';
+          subSpan.textContent = opt.sub;
+          btn.appendChild(subSpan);
+        }
+
+        btn.addEventListener('click', () => onSelect(opt.value));
+        container.appendChild(btn);
+      });
+    }
+
+    /**
+     * Renders a compact Positive / Negative toggle pair for ER, PR, or HER2.
+     */
+    function renderBioToggle(containerId, markerLabel, activeValue, onSelect) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      ['+', '-'].forEach(val => {
+        const isActive = val === activeValue;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('role', 'radio');
+        btn.setAttribute('aria-checked', String(isActive));
+
+        let activeStyle = '';
+        if (isActive) {
+          activeStyle = val === '+'
+            ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+            : 'bg-slate-700 text-white border-slate-700 shadow-sm';
+        } else {
+          activeStyle = 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900';
+        }
+
+        btn.className = [
+          'py-2 px-2 rounded-lg text-xs sm:text-sm font-bold border transition-all duration-150 cursor-pointer active:scale-95',
+          activeStyle
+        ].join(' ');
+
+        btn.textContent = `${markerLabel} (${val})`;
+        btn.addEventListener('click', () => onSelect(val));
+        container.appendChild(btn);
+      });
+    }
+
+    /**
+     * Renders the 4 Quick Subtype Preset buttons.
+     */
+    function renderPresets(currentSubtypeId) {
+      const container = document.getElementById('preset-group');
+      container.innerHTML = '';
+
+      SUBTYPE_PRESETS.forEach(preset => {
+        const isMatch = preset.id === currentSubtypeId;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = [
+          'py-2 px-2.5 rounded-xl text-xs font-semibold border transition-all duration-150 cursor-pointer active:scale-95 truncate',
+          isMatch
+            ? 'bg-rose-50 text-rose-800 border-rose-400 ring-1 ring-rose-400/40'
+            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+        ].join(' ');
+
+        btn.textContent = preset.label;
+        btn.addEventListener('click', () => {
+          state.er = preset.er;
+          state.pr = preset.pr;
+          state.her2 = preset.her2;
+          renderAll();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    /**
+     * Master UI render function triggered on any state change.
+     */
+    function renderAll() {
+      const result = calculateStaging();
+      const hasValidSize = state.tumorSize !== '' && !isNaN(parseFloat(state.tumorSize));
+
+      // Sync tumor size input UI & clear button visibility
+      const sizeInput = document.getElementById('tumorSizeInput');
+      const clearSizeBtn = document.getElementById('clearSizeBtn');
+      const sizeEmrOption = document.getElementById('size-emr-option');
+      if (sizeInput.value !== state.tumorSize) {
+        sizeInput.value = state.tumorSize;
+      }
+      clearSizeBtn.classList.toggle('hidden', state.tumorSize === '');
+      sizeEmrOption.classList.toggle('hidden', !hasValidSize);
+
+      // 1. Render TNM & Grade Pill Groups
+      renderPillGroup('t-group', T_OPTIONS, state.T, val => {
+        // Manual T click clears the numeric size box to avoid size/T mismatch
+        state.T = val;
+        state.tumorSize = '';
+        renderAll();
+      }, 'py-2 px-1.5');
+      renderPillGroup('n-group', N_OPTIONS, state.N, val => { state.N = val; renderAll(); }, 'py-2.5 px-2');
+      renderPillGroup('m-group', M_OPTIONS, state.M, val => { state.M = val; renderAll(); }, 'py-2.5 px-3');
+      renderPillGroup('grade-group', GRADE_OPTIONS, state.grade, val => { state.grade = val; renderAll(); });
+
+      // 2. Render Quick Subtype Presets & Biomarker Toggles
+      renderPresets(result.subtype.id);
+      renderBioToggle('er-group', 'ER', state.er, val => { state.er = val; renderAll(); });
+      renderBioToggle('pr-group', 'PR', state.pr, val => { state.pr = val; renderAll(); });
+      renderBioToggle('her2-group', 'HER2', state.her2, val => { state.her2 = val; renderAll(); });
+
+      // 3. Visual Dimming for Grade & Biomarkers when Stage 0 or Stage IV
+      const bioCard = document.getElementById('bio-card');
+      const bioBadge = document.getElementById('bio-not-required-badge');
+      if (result.bioNotRequired) {
+        bioCard.classList.add('opacity-65');
+        bioBadge.classList.remove('hidden');
+      } else {
+        bioCard.classList.remove('opacity-65');
+        bioBadge.classList.add('hidden');
+      }
+
+      // 4. Update Result Card Banner & Content
+      const banner = document.getElementById('stage-banner');
+      const validView = document.getElementById('valid-stage-view');
+      const warningView = document.getElementById('warning-stage-view');
+      const comparisonSection = document.getElementById('comparison-section');
+      const emrSection = document.getElementById('emr-section');
+      const subtypeBadge = document.getElementById('subtype-badge');
+
+      // Reset banner gradient classes
+      banner.className = `p-5 sm:p-6 bg-gradient-to-br text-white transition-all duration-300 ${getStageBannerClasses(result.progStage, result.valid)}`;
+      subtypeBadge.textContent = result.subtype.label;
+
+      if (!result.valid) {
+        // Show warning state
+        validView.classList.add('hidden');
+        warningView.classList.remove('hidden');
+        comparisonSection.classList.add('hidden');
+        emrSection.classList.add('hidden');
+
+        document.getElementById('warning-title').textContent = result.warningTitle;
+        document.getElementById('warning-message').textContent = result.warningMessage;
+        currentEmrString = '';
+      } else {
+        // Show valid stage result
+        validView.classList.remove('hidden');
+        warningView.classList.add('hidden');
+        comparisonSection.classList.remove('hidden');
+        emrSection.classList.remove('hidden');
+
+        document.getElementById('prog-stage-text').textContent = `Stage ${result.progStage}`;
+        const miniSizeText = hasValidSize ? ` (${state.tumorSize} cm)` : '';
+        document.getElementById('tnm-mini-label').textContent = `c${state.T}${miniSizeText} ${state.N} ${state.M}`;
+        document.getElementById('anat-stage-text').textContent = `Stage ${result.anatStage}`;
+
+        // Shift Badge styling
+        const shiftBadge = document.getElementById('shift-badge');
+        if (result.shift === 'downstaged') {
+          shiftBadge.className = 'inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+          shiftBadge.textContent = '↓ 較解剖分期降期';
+        } else if (result.shift === 'upstaged') {
+          shiftBadge.className = 'inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200';
+          shiftBadge.textContent = '↑ 較解剖分期升期';
+        } else {
+          shiftBadge.className = 'inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-200/80 text-slate-700 border border-slate-300/60';
+          shiftBadge.textContent = '＝ 與解剖分期一致';
+        }
+
+        // Build EMR Summary String (preserves fine-grained T1a/b/c/mi + optional cm)
+        const emrTnmStr = (hasValidSize && state.includeSizeInEmr)
+          ? `c${state.T} (${state.tumorSize} cm) ${state.N}${state.M}`
+          : `c${state.T}${state.N}${state.M}`;
+
+        if (result.progStage === '0') {
+          currentEmrString = `${emrTnmStr} | Clinical Prognostic Stage: 0 (Anatomic: 0) [AJCC 8th]`;
+        } else {
+          currentEmrString = `${emrTnmStr}, Grade ${state.grade}, ER(${state.er}), PR(${state.pr}), HER2(${state.her2}) | Clinical Prognostic Stage: ${result.progStage} (Anatomic: ${result.anatStage}) [AJCC 8th]`;
+        }
+        document.getElementById('emr-text-box').textContent = currentEmrString;
+      }
+
+      // 5. Render Parameter Summary Chips
+      const summaryContainer = document.getElementById('params-summary');
+      const tnmChipText = hasValidSize
+        ? `c${state.T} (${state.tumorSize} cm) ${state.N}${state.M}`
+        : `c${state.T}${state.N}${state.M}`;
+      const chips = [
+        { text: tnmChipText, cls: 'bg-slate-100 text-slate-800 border-slate-200' },
+        { text: `Grade ${state.grade}`, cls: result.bioNotRequired ? 'bg-slate-50 text-slate-400 border-slate-200 line-through' : 'bg-slate-100 text-slate-700 border-slate-200' },
+        { text: `ER(${state.er})`, cls: state.er === '+' ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-slate-100 text-slate-600 border-slate-200' },
+        { text: `PR(${state.pr})`, cls: state.pr === '+' ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-slate-100 text-slate-600 border-slate-200' },
+        { text: `HER2(${state.her2})`, cls: state.her2 === '+' ? 'bg-sky-50 text-sky-800 border-sky-200' : 'bg-slate-100 text-slate-600 border-slate-200' }
+      ];
+      summaryContainer.innerHTML = chips
+        .map(c => `<span class="px-2.5 py-1 rounded-lg border font-semibold ${c.cls}">${c.text}</span>`)
+        .join('');
+    }
+
+    // =========================================================================
+    // 5. CLIPBOARD COPY & INTERACTIVE CONTROLS
+    // =========================================================================
+
+    /**
+     * Shows a subtle floating toast notification.
+     */
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = message;
+
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2200);
+    }
+
+    /**
+     * Copies EMR text using execCommand('copy') for reliable iframe compatibility.
+     */
+    function copyEmrSummary() {
+      if (!currentEmrString) return;
+
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = currentEmrString;
+        textArea.style.position = 'fixed';
+        textArea.style.top = '-9999px';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        if (successful) {
+          // Visual button feedback
+          const copyIcon = document.getElementById('copy-icon');
+          const checkIcon = document.getElementById('check-icon');
+          const label = document.getElementById('copy-btn-label');
+
+          copyIcon.classList.add('hidden');
+          checkIcon.classList.remove('hidden');
+          label.textContent = '已複製病歷摘要';
+          showToast('已複製病歷摘要至剪貼簿');
+
+          setTimeout(() => {
+            copyIcon.classList.remove('hidden');
+            checkIcon.classList.add('hidden');
+            label.textContent = '一鍵複製病歷摘要';
+          }, 1800);
+        } else {
+          showToast('複製失敗，請手動選取文字複製');
+        }
+      } catch (err) {
+        console.error('Copy failed:', err);
+        showToast('無法存取剪貼簿，請手動選取文字複製');
+      }
+    }
+
+    // Event Listeners Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initial render
+      renderAll();
+
+      // Tumor Size Quick Input (cm) -> Auto-selects corresponding T stage
+      const tumorSizeInput = document.getElementById('tumorSizeInput');
+      tumorSizeInput.addEventListener('input', (e) => {
+        const rawVal = e.target.value.trim();
+        state.tumorSize = rawVal;
+
+        if (rawVal !== '') {
+          const parsed = parseFloat(rawVal);
+          const mappedT = mapSizeToT(parsed);
+          if (mappedT) {
+            state.T = mappedT;
+          }
+        }
+        renderAll();
+      });
+
+      // Clear Tumor Size Button
+      document.getElementById('clearSizeBtn').addEventListener('click', () => {
+        state.tumorSize = '';
+        renderAll();
+        tumorSizeInput.focus();
+      });
+
+      // Toggle whether EMR summary includes tumor size in cm
+      document.getElementById('includeSizeCheckbox').addEventListener('change', (e) => {
+        state.includeSizeInEmr = e.target.checked;
+        renderAll();
+      });
+
+      // Copy button
+      document.getElementById('copyEmrBtn').addEventListener('click', copyEmrSummary);
+
+      // Reset button
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        state = { ...DEFAULT_STATE };
+        document.getElementById('includeSizeCheckbox').checked = true;
+        renderAll();
+        showToast('已重設為預設值 (T1c N0 M0, G2, HR+/HER2-)');
+      });
+
+      // Collapsible Reference Drawer
+      const refToggleBtn = document.getElementById('refToggleBtn');
+      const refContent = document.getElementById('refContent');
+      const refChevron = document.getElementById('refChevron');
+
+      refToggleBtn.addEventListener('click', () => {
+        const isExpanded = refToggleBtn.getAttribute('aria-expanded') === 'true';
+        refToggleBtn.setAttribute('aria-expanded', String(!isExpanded));
+        refContent.classList.toggle('hidden');
+        refChevron.classList.toggle('rotate-180');
+      });
+    });
+  </script>
+</body>
+</html>
